@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Dakhla — track university admission deadlines, compare fees, calculate your merit aggregate, and stay safe from admission scams. Built for Pakistani students.">
+  <title>Dakhla — University Admission Tracker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+  <header class="header">
+    <div class="hello">Admission season 2026</div>
+    <h1>Dakhla <span class="accent">Tracker</span></h1>
+    <div class="sub">Every deadline, fee and merit — one place. Made for Pakistani students.</div>
+  </header>
+
+  <!-- ============ HOME ============ -->
+  <section class="view active" id="view-home">
+    <div class="search-wrap">
+      <span class="icon">🔍</span>
+      <input type="text" id="search" placeholder="Search universities or cities… e.g. Lahore" autocomplete="off">
+    </div>
+
+    <div class="section-title">⏰ Nearest deadlines</div>
+    <div id="deadline-cards"></div>
+
+    <div class="section-title">🏛 Universities</div>
+    <div id="home-uni-list"></div>
+  </section>
+
+  <!-- ============ UNIVERSITIES ============ -->
+  <section class="view" id="view-universities">
+    <div class="search-wrap">
+      <span class="icon">🔍</span>
+      <input type="text" id="search2" placeholder="Search universities or cities…" autocomplete="off">
+    </div>
+    <div class="row" style="margin:6px 0 12px;">
+      <button class="btn ghost" data-sector-filter="all">All</button>
+      <button class="btn ghost" data-sector-filter="Public">Public</button>
+      <button class="btn ghost" data-sector-filter="Private">Private</button>
+    </div>
+    <div id="all-uni-list"></div>
+  </section>
+
+  <!-- ============ UNIVERSITY DETAIL ============ -->
+  <section class="view" id="view-detail">
+    <button class="back-btn" id="back-btn">← Back</button>
+    <div id="detail-body"></div>
+  </section>
+
+  <!-- ============ MERIT ============ -->
+  <section class="view" id="view-merit">
+    <div class="card">
+      <h2>Merit calculator</h2>
+      <p class="muted">Most universities use: <strong>50% Intermediate + 50% entry test</strong>. Compare your aggregate with 2025 closing merits of your shortlisted universities.</p>
+      <label for="inter-input">Intermediate percentage (%)</label>
+      <input type="number" id="inter-input" min="0" max="100" step="0.01" placeholder="e.g. 78.5">
+      <label for="test-input">Entry test score (%)</label>
+      <input type="number" id="test-input" min="0" max="100" step="0.01" placeholder="e.g. 82">
+      <div style="margin-top:14px;">
+        <button class="btn" id="calc-btn">Calculate my aggregate</button>
+      </div>
+      <div id="merit-error" class="muted" style="color:var(--bad); margin-top:10px; display:none;"></div>
+    </div>
+    <div class="card" id="merit-result-card" style="display:none;">
+      <h2>Your aggregate</h2>
+      <div class="hero-stat">
+        <div class="num" id="agg-num">—</div>
+        <div class="lbl">merit aggregate</div>
+      </div>
+      <div class="section-title">vs your shortlist</div>
+      <div id="merit-results"></div>
+    </div>
+  </section>
+
+  <!-- ============ CHECKLIST ============ -->
+  <section class="view" id="view-checklist">
+    <div class="card">
+      <h2>Document checklist</h2>
+      <div class="ring-wrap">
+        <!-- Progress ring drawn by JS (SVG circle with stroke-dashoffset) -->
+        <svg width="84" height="84" viewBox="0 0 84 84" aria-label="Checklist progress">
+          <circle cx="42" cy="42" r="36" fill="none" stroke="#F1E3E7" stroke-width="10"/>
+          <circle id="ring-fill" cx="42" cy="42" r="36" fill="none" stroke="#E11D48"
+                  stroke-width="10" stroke-linecap="round" transform="rotate(-90 42 42)"/>
+        </svg>
+        <div class="pct"><span id="check-pct">0%</span><small>documents ready</small></div>
+      </div>
+      <div id="check-list"></div>
+    </div>
+    <div class="section-title">📄 Ready per shortlisted university</div>
+    <div id="check-per-uni"></div>
+  </section>
+
+  <!-- ============ MORE: fees + scam shield ============ -->
+  <section class="view" id="view-more">
+    <div class="section-title">💰 Fee comparison (shortlist)</div>
+    <div class="card">
+      <div id="fees-table"></div>
+    </div>
+
+    <div class="section-title">🛡 Scam Shield</div>
+    <div class="card">
+      <h2>Red-flag checker</h2>
+      <p class="muted">An "agent" or "consultant" is talking to you. Tick anything that sounds familiar:</p>
+      <div id="scam-flags" style="margin-top:8px;"></div>
+      <div class="verdict-box" id="scam-verdict">
+        <div class="big">SAFE</div>
+        <p>No red flags ticked yet. Tick any statement above that matches what you were told.</p>
+      </div>
+    </div>
+
+    <div class="section-title">✅ Verified channels</div>
+    <div class="card">
+      <p class="muted" style="margin-bottom:8px;">Only trust these — anything else is a risk:</p>
+      <div id="verified-list"></div>
+    </div>
+  </section>
+</div>
+
+<!-- Portal note modal (no external links — fully offline) -->
+<div class="modal-backdrop" id="portal-modal">
+  <div class="modal">
+    <h3>Start your application</h3>
+    <p class="muted">Apply only through the university's official portal. Type this address yourself — never click a link someone sends you:</p>
+    <code id="portal-url">—</code>
+    <p class="muted" style="font-size:13px;">Pay the application fee with the bank challan generated inside the portal. Never pay cash to an "agent".</p>
+    <div style="margin-top:16px;">
+      <button class="btn" id="portal-close">Got it</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom tab bar -->
+<nav class="tabbar" aria-label="Main navigation">
+  <button class="tab active" data-view="view-home"><span class="ticon">🏠</span>Home</button>
+  <button class="tab" data-view="view-universities"><span class="ticon">🏛</span>Universities</button>
+  <button class="tab" data-view="view-merit"><span class="ticon">📊</span>Merit</button>
+  <button class="tab" data-view="view-checklist"><span class="ticon">✅</span>Checklist</button>
+  <button class="tab" data-view="view-more"><span class="ticon">⋯</span>More</button>
+</nav>
+
+<script src="data.js"></script>
+<script src="logic.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
